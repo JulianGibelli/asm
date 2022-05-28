@@ -27,16 +27,12 @@ main proc
 	mov bx,0
 	mov si,0
 
-	lea bx,decReg ;pongo el offset al numero registro
-	lea si, asciiBin ;pongo el offset del binario ascii
+	mov al,decReg ;pongo en AL el numero registro
+	lea bx, asciiBin ;pongo el offset del binario ascii
 	call regToBin
 
 	mov bx,0
 	mov si,0
-
-	;lea bx,decReg
-	;lea si,num
-	;call regToAscii
 	mov dx,0
 
 	lea dx,asciiBin
@@ -49,27 +45,28 @@ main proc
 main endp
 
 regToBin proc
-	push ax
-	push cx
-
-	xor ax,ax
-	xor cx,cx
-	mov al,[bx] ;le pongo el numero en registro a dividir
-	add si,7;incremento el offset de SI en 7 "_ _ _ _ _ _ _ X"
-
-aca:
-	mov cl,2 ;preparo cl para dividir
-	div cl ;divido por 2
-	add ah,30h ;al resto 0/1 le sumo 30h
-	mov [si],ah ;muevo el resto a la ultima posicion
-	dec si
-	cmp al,1 ;comparo el cociente contra 1 para saber si termine
-	ja aca
-	add al,30h ;le sumo al 1 30h	
-	mov [si],al
+;CONVIERTE UNA VARIABLE TIPO REGISTRO A UN ASCII DE 8 DIGITOS "01011010"
+;REQUISITOS: MOVER A AL LA VARIABLE REGISTRO
+			;PONER EN BX EL OFFSET A LA VARIABLE ASCII QUE TENDRA EL BINARIO 
 	
-	pop cx
-	pop ax
+		mov cx, bx						  ;Guardo la direcc a cx
+		add cx, 8                         ; cx+8   reng 18: _ _ _ [8]
+arriba:
+		cmp bx, cx                        ; bx = reng 18: [8]
+		je finLaburo
+		shr al, 1
+		jc esUno
+		mov byte ptr [bx],30h; un 0;
+continua:
+		inc bx
+		jmp arriba		
+
+
+esUno:
+		mov byte ptr [bx],31h;un 1;
+		jmp continua
+
+finLaburo:	
 	ret
 regToBin endp
 

@@ -136,6 +136,33 @@ final:
 	ret
 
 ascii2hexa endp
+;---------------------------------------------------
+regToBin proc
+;CONVIERTE UNA VARIABLE TIPO REGISTRO A UN ASCII DE 8 DIGITOS "01011010"
+;REQUISITOS: MOVER A AL LA VARIABLE REGISTRO
+			;PONER EN BX EL OFFSET A LA VARIABLE ASCII QUE TENDRA EL BINARIO 
+	
+		mov cx, bx						  ;Guardo la direcc a cx
+		add cx, 8                         ; cx+8   reng 18: _ _ _ [8]
+arriba:
+		cmp bx, cx                        ; bx = reng 18: [8]
+		je finLaburo
+		shr al, 1
+		jc esUno
+		mov byte ptr [bx],30h; un 0;
+continua:
+		inc bx
+		jmp arriba		
+
+
+esUno:
+		mov byte ptr [bx],31h;un 1;
+		jmp continua
+
+finLaburo:	
+	ret
+regToBin endp
+
 
 
 end
