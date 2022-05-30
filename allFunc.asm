@@ -9,6 +9,7 @@ public ingreso
 public asciiToReg
 public regToAscii
 public ascii2hexa
+public regToBin
 
 imprimir proc
 ;FUNCION IMPRESION DE TEXTO
@@ -57,21 +58,21 @@ asciiToReg proc
 		  ;COLOCAR EN DI EL OFFSET A DATAMUL (100,10,1)
 		  ;COLOCAR EN SI EL OFFSET AL REGISTRO ACUMULADOR
 	push ax
-	push cx
-
+	push dx
+	mov cx,3
 arriba:
-	cmp bx, 3
-	je termine
+	;cmp bx, 3
+	;je termine
 	xor ax,ax
-	xor cx,cx
-	mov cl,[di]
+	xor dx,dx
+	mov dl,[di]
 	mov al,[bx]
 	sub al, 30h
-	mul cl
+	mul dl
 	add [si],al
 	inc bx
 	inc di
-	jmp arriba
+	loop arriba
 
 termine:
 	pop cx
@@ -138,31 +139,27 @@ final:
 ascii2hexa endp
 ;---------------------------------------------------
 regToBin proc
-;CONVIERTE UNA VARIABLE TIPO REGISTRO A UN ASCII DE 8 DIGITOS "01011010"
-;REQUISITOS: MOVER A AL LA VARIABLE REGISTRO
-			;PONER EN BX EL OFFSET A LA VARIABLE ASCII QUE TENDRA EL BINARIO 
+;REQUISITO: PONER EN AL EL REGISTRO A CONVERTIR
+			;MOVER A BX EL INDICE 7 (DW)
+			; PONER EN SI EL OFFSET AL ASCII DE 8 DIGITOS "00000000"
+	push cx	
+	xor cx,cx
 	
-		mov cx, bx						  ;Guardo la direcc a cx
-		add cx, 8                         ; cx+8   reng 18: _ _ _ [8]
-arriba:
-		cmp bx, cx                        ; bx = reng 18: [8]
-		je finLaburo
-		shr al, 1
-		jc esUno
-		mov byte ptr [bx],30h; un 0;
-continua:
-		inc bx
-		jmp arriba		
+aca:
+	xor ah,ah ;plancho ah
+	mov cl,2 ;muevo el 2 para hacer la division
+	div cl ;divido, me deja en AH el resto y en AL el cociente
+	add ah,30h ;al resto le sumo 30h para obtener un "1" o "0"
+	mov [si+bx],ah ;muevo el ascii a la ultima posicion de mi asciinario "_ _ _ _ _ _ _ 1"
+	dec bx
+	cmp al,1 ;comparo el cociente con 1 para saber si termine de dividir o no
+	ja aca ;salto arriba si no termine
+	add al,30h ;si termine le sumo al cociente 30h y obtengo 
+	mov [si+bx],al
 
-
-esUno:
-		mov byte ptr [bx],31h;un 1;
-		jmp continua
-
-finLaburo:	
+	pop cx	
 	ret
 regToBin endp
-
 
 
 end
