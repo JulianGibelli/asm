@@ -3,82 +3,97 @@
 .stack 100h
 
 .data
-	x db 160
-	y db 100
-	color db 4,9
+
 .code
 main proc
-	mov ax, @data
-	mov ds,ax
+    mov ax,@data
+    mov ds,ax
 
-	;set the video mode 320x200 mode 13h
-	mov ah,00h
-	mov al,13h
-	int 10h
+;entro en modo video 320x200-segun AL 13h
+    mov ah,0
+    mov al,13h
+    int 10h
+;dibujo un pixel e la columna 100 fila 100 con color 9
+    mov ah,0ch
+    mov cx,100
+    mov dx,100
+    mov si,0
 
-	lea bx,x
-	lea si,y
-	lea di,color
-	mov cx,5
-dibujar:
-	call draw
-	inc byte ptr[bx]
-	;inc byte ptr[si]
-	loop dibujar	
+    mov al,9 ;seteo color
 
-;---------segunda--------
-	mov cx,1000
-nada:
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	loop nada
+dibujo:
+    cmp cx,-200
+    je finDibujo
+    cmp dx,0
+    je findibujo
+    int 10h
+    call direccion
+    cmp bx, 1177h ;hacia arriba
+    je haciaArriba
+    cmp bx, 1E61h ;haca izq
+    je haciaIzq
+    cmp bx,2064h;hacia derecha
+    je haciaDer
+    cmp bx,1F73h
+    je haciaAbajo
+    cmp bx,011Bh
+    je findibujo
+    cmp bx, 3920h
+    je cambiaColor
+aca:    
+    jmp dibujo
 
-	lea bx,x
-	lea si,y
-	lea di,color+1
-	mov cx,5
-dibujar2:
-	call draw
-	inc byte ptr[bx]
-	;inc byte ptr[si]
-	;inc si
-	loop dibujar2	
+haciaArriba:
+    dec dx
+    jmp dibujo
 
-	;wait for a key press
-	mov ah,00h
-	int 16h
+haciaIzq:
+    dec cx
+    jmp dibujo
 
-	;set the video mode to text mode
-	mov ah,00h
-	mov al,03h
-	int 10h
+haciaDer:
+    inc cx
+    jmp dibujo
 
-	mov ax,4c00h
-	int 21h
+haciaAbajo:
+    inc dx
+    jmp dibujo
+
+cambiaColor:
+    cmp si,1
+    je change
+    mov al,0
+    mov si,1
+    jmp dibujo
+
+change:
+    mov al,9
+    mov si,0
+    jmp dibujo
+
+finDibujo:
+;espero por una tecla para continuar con la instruccion 16h
+
+    mov ah,00h
+    int 16h
+
+;vuelvo al modo de consola de texto para terminar
+
+    mov ah,0
+    mov al,03h
+    int 10h
+
+    mov ax,4c00h
+    int 21h
 main endp
 
-
-draw proc
-	push cx
-	push ax
-	push dx
-	;draw pixel 160column - 100 row - color red
-	mov ah,0ch
-	mov cx,[bx] ;columna
-	mov dx,[si];fila
-	mov al,[di];color
-	int 10h
-
-	pop dx
-	pop ax
-	pop cx
-	ret
-
-draw endp
+direccion proc
+    push ax
+    mov al,0
+    mov ah,0
+    int 16h
+    mov bx,ax
+    pop ax
+    ret
+direccion endp
 end
