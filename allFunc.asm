@@ -161,6 +161,31 @@ aca:
 	ret
 regToBin endp
 
+;------------------------------------------------------
+cuenta_cosas proc
+;REQUISITO: PONER EN BX EL OFFSET DE LA VARIABLE A RECORRER
+			;MOVER A CL EL ASCII A BUSCAR
+			;PONER EN SI EL OFFSET DEL REGISTRO ACUMULADOR
+	push cx
+	busco:
+		cmp byte ptr[bx],24h
+		je termine
+		cmp byte ptr[bx],cl ;en cl poner lo que busco
+		je encontre
+		inc bx
+		jmp busco
+
+
+	encontre:
+		add byte ptr[si],1
+		inc bx
+		jmp busco
+
+	termine:
+		pop cx
+		ret
+
+cuenta_cosas endp	
 
 end
 
