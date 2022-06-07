@@ -181,11 +181,34 @@ cuenta_cosas proc
 		inc bx
 		jmp busco
 
-	termine:
+	termine2:
 		pop cx
 		ret
 
 cuenta_cosas endp	
+;--------------------------------------------------------
+;REQUISITOS: MOVER A BX EL OFFSET DEL BINARIO EN ASCII
+			;MOVER A DI EL OFFSET DEL VECTOR DE BASES (128,64,32,16,8,4,2,1)
+			;MOVER A SI EL OFFSET DEL REGISTRO ACUMULADOR
+binToAscii proc
+	push ax
+	push dx
+	mov cx,8
+aca3:
+	mov al,[bx] ;muevo a AL el primer ascii binario a multiplicar
+	sub al,30h ;le resto 30h al "1" o "0"
+	mov dl, [di] ;muevo a DL el primer 128 para hacer la multiplicacion
+	mul dl
+	add [si],al
+	inc bx
+	inc di
+	loop aca
+
+	pop dx
+	pop ax
+	ret
+
+binToAscii endp
 
 end
 
