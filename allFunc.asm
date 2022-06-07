@@ -209,6 +209,20 @@ aca3:
 	ret
 
 binToAscii endp
+;-----------------------------------------------
+;REQUISITOS: MOVER A BX EL OFFSET DE LA VARIABLE TEXTO A RECORRER
+			;MOVER A SI EL OFFSET DEL REGISTRO ACUMULADOR
+len proc
+	
+up:
+	cmp byte ptr[bx],24h
+	je finish
+	add byte ptr[si],1
+	inc bx
+	jmp up
+finish:	
+	ret
+len endp
 
 end
 
